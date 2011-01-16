@@ -1,5 +1,5 @@
 Rails3App::Application.routes.draw do
-  get "users/new"
+  resources :users
 
   match '/signup', :to => 'users#new'
 
@@ -9,8 +9,7 @@ Rails3App::Application.routes.draw do
 
   root :to => 'pages#home'
 
-  resources :microposts
-  resources :users
+  #resources :microposts
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
