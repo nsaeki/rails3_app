@@ -109,6 +109,18 @@ describe UsersController do
       get :new
       response.should have_selector("input[name='user[password_confirmation]'][type='password']")
     end
+    
+    describe "as a signed-in user" do
+      before(:each) do
+        @user = Factory(:user)
+      end
+
+      it "should redirect to top page" do
+        test_sign_in(@user)
+        get :new
+        response.should redirect_to(root_path)
+      end
+    end
   end
 
   describe "POST 'create'" do
@@ -160,6 +172,18 @@ describe UsersController do
       it "should sign the user in" do
         post :create, :user =>@attr
         controller.should be_signed_in
+      end
+    end
+    
+    describe "as a signed-in user" do
+      before(:each) do
+        @user = Factory(:user)
+      end
+
+      it "should redirect to top page" do
+        test_sign_in(@user)
+        post :create, :user => @attr
+        response.should redirect_to(root_path)
       end
     end
   end
@@ -294,8 +318,8 @@ describe UsersController do
     
     describe "as an admin user" do
       before(:each) do
-        admin = Factory(:user, :email => "admin@example.com", :admin => true)
-        test_sign_in(admin)
+        @admin = Factory(:user, :email => "admin@example.com", :admin => true)
+        test_sign_in(@admin)
       end
       
       it "should destroy the user" do
@@ -307,6 +331,13 @@ describe UsersController do
       it "should redirect to the users page" do
         delete :destroy, :id => @user 
         response.should redirect_to(users_path)
+      end
+      
+      it "should not destroy themselves" do
+        lambda do
+          delete :destroy, :id => @admin
+        end.should_not change(User, :count)
+        flash[:error].should =~ /couldn't delete/i
       end
     end
   end
