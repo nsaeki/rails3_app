@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe PagesController do
   render_views
+
   before(:each) do
     @base_title = "Ruby on Rails Tutorial Sample App"
   end
@@ -11,10 +12,34 @@ describe PagesController do
       get 'home'
       response.should be_success
     end
+
     it "should have the right title" do
       get 'home'
       response.should have_selector("title",
         :content => @base_title + " | Home")
+    end
+
+    describe "as a signed-in user" do
+      before(:each) do
+        @user = Factory(:user)
+        test_sign_in(@user)
+      end
+
+      it "should have the collect micropost counts" do
+        get 'home'
+        response.should have_selector("span.microposts",
+          :content => @user.microposts.count.to_s + " micropost")
+          
+        get 'home'
+        @user.microposts.create
+        response.should have_selector("span.microposts",
+          :content => @user.microposts.count.to_s + " micropost")
+
+        get 'home'
+        @user.microposts.create
+        response.should have_selector("span.microposts",
+          :content => @user.microposts.count.to_s + " microposts")
+      end
     end
   end
 

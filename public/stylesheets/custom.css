@@ -193,6 +193,39 @@ h1.micropost {
 	margin-bottom: 0.3em;
 }
 
+/* Microposts */
+
+ol li:nth-child(even) {
+	background: #e5edf9;
+}
+
+ol.microposts {
+	padding: 1em 0 0 0;
+	list-style: none;
+}
+
+ol.microposts li {
+	border-top: 1px solid #ccc;
+	padding: 10px 10px 10px 5px;
+}
+
+ol.microposts li div.gravatar {
+	border-top: 1px solid #ccc;
+	margin-right: 0px;
+	vertical-align: top;
+	width: 50px;
+}
+
+ol.microposts li div.micropost {
+	vertical-align: top;
+}
+
+ol.microposts li div.micropost span.timestamp {
+	display: block;
+	font-size: 85%;
+	color: #666;
+}
+
 table.microposts {
 	margin-top: 1em;
 }

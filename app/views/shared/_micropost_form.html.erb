@@ -1,7 +1,16 @@
 <%= form_for @micropost do |f| %>
 	<%= render 'shared/error_messages', :object => f.object %>
+	<script type="text/javascript" charset="utf-8">
+		function micropostCharCounts(text_area) {
+			var count = text_area.value.length;
+			var max = 140;
+			var elem = document.getElementById('micropost_char_remains');
+			elem.innerHTML = max - count + " remains <br />";
+		}
+	</script>
 	<div class="field">
-		<%= f.text_area :content %>
+		<%= f.text_area :content,	:onkeyup => "micropostCharCounts(this)" %>
+		<span id="micropost_char_remains"></span>
 	</div>
 	<div class="actions">
 		<%= f.submit "Submit" %>

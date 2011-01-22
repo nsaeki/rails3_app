@@ -1,25 +1,11 @@
-<h1>Listing microposts</h1>
+<h1><a href="<%= user_path(@user) %>"><%= @user.name %></a></h1>
 
-<table>
-  <tr>
-    <th>Content</th>
-    <th>User</th>
-    <th></th>
-    <th></th>
-    <th></th>
-  </tr>
+<h2>Microposts</h2>
 
-<% @microposts.each do |micropost| %>
-  <tr>
-    <td><%= micropost.content %></td>
-    <td><%= micropost.user_id %></td>
-    <td><%= link_to 'Show', micropost %></td>
-    <td><%= link_to 'Edit', edit_micropost_path(micropost) %></td>
-    <td><%= link_to 'Destroy', micropost, :confirm => 'Are you sure?', :method => :delete %></td>
-  </tr>
-<% end %>
-</table>
+<%= will_paginate %>
 
-<br />
+<ol class="microposts">
+	<%= render @microposts %>
+</ol>
 
-<%= link_to 'New Micropost', new_micropost_path %>
+<%= will_paginate %>

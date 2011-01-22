@@ -78,12 +78,34 @@ describe UsersController do
       response.should have_selector("h1>img", :class => "gravatar" ) 
     end
     
-    it "should show the user's microposts" do
-      mp1 = Factory(:micropost, :user => @user, :content => "Foo bar")
-      mp2 = Factory(:micropost, :user => @user, :content => "Bar quux")
-      get :show, :id => @user
-      response.should have_selector("span.content", :content => mp1.content)
-      response.should have_selector("span.content", :content => mp2.content)
+    describe "microposts" do
+      it "should show the user's microposts" do
+        mp1 = Factory(:micropost, :user => @user, :content => "Foo bar")
+        mp2 = Factory(:micropost, :user => @user, :content => "Bar quux")
+        get :show, :id => @user
+        response.should have_selector("span.content", :content => mp1.content)
+        response.should have_selector("span.content", :content => mp2.content)
+      end
+    
+      it "should show the collect micropost counts" do
+        mp1 = Factory(:micropost, :user => @user, :content => "Foo bar")
+        get :show, :id => @user
+        response.should have_selector("td.sidebar",
+          :content => "Microposts " + @user.microposts.count.to_s)
+      end
+    
+      it "should paginate microposts" do
+        100.times do
+          Factory(:micropost, :user => @user, :content => "Foo bar")
+        end
+        get :show, :id => @user
+        response.should have_selector("div.pagination")
+        response.should have_selector("span.disabled", :content => "Previous")
+        response.should have_selector("a", :href => "/users/#{@user.id}?page=2",
+                                           :content => "2")
+        response.should have_selector("a", :href => "/users/#{@user.id}?page=2",
+                                           :content => "Next")
+      end
     end
   end
 
