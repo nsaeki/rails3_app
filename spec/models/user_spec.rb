@@ -2,12 +2,7 @@ require "spec_helper"
 
 describe User do
   before(:each) do
-    @attr = {
-      :name => "Example User",
-      :email => "user@example.com",
-      :password => "foobar",
-      :password_confirmation => "foobar"
-    }
+    @attr = Factory.attributes_for(:user)
   end
   
   it "should create a new instance given valid attributes" do
@@ -47,9 +42,8 @@ describe User do
   end
   
   it "should reject duplicate email addresses" do
-    # Put a user with given email addres into the database.
     User.create!(@attr)
-    user_with_duplicate_email = User.new(@attr)
+    user_with_duplicate_email = User.new(@attr.merge(:login_name => "another-one"))
     user_with_duplicate_email.should_not be_valid
   end
 
@@ -58,6 +52,51 @@ describe User do
     User.create!(@attr.merge(:email => upcased_email))
     user_with_duplicate_email = User.new(@attr)
     user_with_duplicate_email.should_not be_valid
+  end
+
+  describe "login name" do
+    it "should require a login name" do
+      no_name_user = User.new(@attr.merge(:login_name => ""))
+      no_name_user.should_not be_valid
+    end
+
+    it "should reject login names that are too long" do
+      long_name = "a" * 31
+      long_name_user = User.new(@attr.merge(:login_name => long_name))
+      long_name_user.should_not be_valid
+    end
+
+    it "should reject invalid login names" do
+      login_name = "myname"
+      invalid_characters = %w/` ~ ! @ # $ % ^ & * ( ) = + [ ] { } \ | < > , ; : ' "/
+      invalid_characters += [" ", '/']
+      invalid_characters.each do |c|
+        login_name = "my" + c + "name"
+        user = User.new(@attr.merge(:login_name => login_name))
+        user.should_not be_valid
+      end
+    end
+
+    it "should accept valid login names" do
+      login_names = %w[my-login my_login mylogin100 my.login mylogin]
+      login_names.each do |login_name|
+        user = User.new(@attr.merge(:login_name => login_name))
+        user.should be_valid
+      end
+    end
+
+    it "should reject duplicate login names" do
+      User.create!(@attr)
+      user_with_duplicate_login_name = User.new(@attr.merge(:email => "another@example.com"))
+      user_with_duplicate_login_name.should_not be_valid
+    end
+
+    it "should reject login names identical up to case" do
+      upcased_login_name = @attr[:login_name].upcase
+      User.create!(@attr.merge(:login_name => upcased_login_name))
+      user_with_duplicate_login_name = User.new(@attr)
+      user_with_duplicate_login_name.should_not be_valid
+    end
   end
 
   describe "password validations" do

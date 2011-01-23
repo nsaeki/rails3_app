@@ -2,7 +2,7 @@ Rails3App::Application.routes.draw do
   resources :users do
     resources :microposts
     member do
-      get :following, :followers
+      get :following, :followers, :replies
     end
   end
 

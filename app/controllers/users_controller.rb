@@ -75,6 +75,13 @@ class UsersController < ApplicationController
     render 'show_follow'
   end
 
+  def replies
+    @title = "Replies"
+    @user = User.find(params[:id])
+    @feed_items = Micropost.including_replies(@user).paginate(:page => params[:page])
+    render 'replies'
+  end
+
   private
   
   def correct_user

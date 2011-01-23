@@ -1,27 +1,31 @@
 # == Schema Information
-# Schema version: 20110116062418
+# Schema version: 20110123171340
 #
 # Table name: microposts
 #
-#  id         :integer         not null, primary key
-#  content    :string(255)
-#  user_id    :integer
-#  created_at :datetime
-#  updated_at :datetime
+#  id          :integer         not null, primary key
+#  content     :string(255)
+#  user_id     :integer
+#  created_at  :datetime
+#  updated_at  :datetime
+#  in_reply_to :integer
 #
 
 class Micropost < ActiveRecord::Base
   attr_accessible :content
   
   belongs_to :user
+  belongs_to :reply_to, :class_name => "User", :foreign_key => "id"
 
   validates :content, :presence => true, :length => { :maximum => 140 }
   validates :user_id, :presence => true
 
+  before_save :extract_reply
+
   default_scope :order => 'microposts.created_at DESC'
 
-  # Return microposts from the users being followed by the given user.
   scope :from_users_followed_by, lambda { |user| followed_by(user) }
+  scope :including_replies, lambda { |user| replies(user) }
 
   private
 
@@ -32,5 +36,15 @@ class Micropost < ActiveRecord::Base
                     WHERE follower_id = :user_id)
     where("user_id IN (#{followed_ids}) OR user_id = :user_id",
       {:user_id => user})
+  end
+  
+  def self.replies(user)
+    where("in_reply_to = :user_id", {:user_id => user})
+  end
+  
+  def extract_reply
+    self.content =~ /\A@([\w\-.]+)/
+    replied_user = User.find_by_login_name($1)
+    self.in_reply_to = replied_user.id if replied_user
   end
 end

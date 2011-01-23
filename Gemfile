@@ -38,6 +38,7 @@ group :development do
   gem 'rspec-rails', '2.3.0'
   gem 'annotate-models', '1.0.4'
   gem 'faker', '0.3.1'
+#  gem 'ruby-debug'
 end
 
 group :test do

@@ -9,4 +9,14 @@ module MicropostsHelper
     (text.length < max_width) ? text :
                                 text.scan(regex).join(zero_width_space)
   end
+  
+  def link_for(text, user)
+    if user
+      text =~ /\A(@[\w\-.]+)/
+      matched = $1
+      text.sub(/\A(@[\w\-.]+)/, link_to($1, user_path(user)))
+    else
+      text
+    end
+  end
 end

@@ -10,15 +10,17 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110122153254) do
+ActiveRecord::Schema.define(:version => 20110123171340) do
 
   create_table "microposts", :force => true do |t|
     t.string   "content"
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "in_reply_to"
   end
 
+  add_index "microposts", ["in_reply_to"], :name => "index_microposts_on_in_reply_to"
   add_index "microposts", ["user_id"], :name => "index_microposts_on_user_id"
 
   create_table "relationships", :force => true do |t|
@@ -40,8 +42,10 @@ ActiveRecord::Schema.define(:version => 20110122153254) do
     t.string   "encrypted_password"
     t.string   "salt"
     t.boolean  "admin"
+    t.string   "login_name"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
+  add_index "users", ["login_name"], :name => "index_users_on_login_name", :unique => true
 
 end

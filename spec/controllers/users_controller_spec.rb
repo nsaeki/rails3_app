@@ -201,8 +201,7 @@ describe UsersController do
     
     describe "success" do
       before(:each) do
-        @attr = { :name => "New User", :email => "user@example.com",
-          :password => "foobar", :password_confirmation => "foobar"}
+        @attr = Factory.attributes_for(:user)
       end
 
       it "should create a user" do
@@ -396,7 +395,7 @@ describe UsersController do
   
   describe "follow pages" do
     describe "when not signed in" do
-      it "should protect 'followin" do
+      it "should protect 'following'" do
         get :following, :id => 1
         response.should redirect_to(signin_path)
       end
@@ -410,6 +409,7 @@ describe UsersController do
     describe "when signed in" do
       before(:each) do
         @user = test_sign_in(Factory(:user))
+
         @other_user = Factory(:user, :email => Factory.next(:email))
         @user.follow!(@other_user)
       end
@@ -424,6 +424,34 @@ describe UsersController do
         get :followers, :id => @other_user
         response.should have_selector("a", :href => user_path(@user),
           :content => @user.name)
+      end
+    end
+  end
+  
+  describe "replied pages" do
+    describe "when not signed in" do
+      it "should protect 'replies'" do
+        get :replies, :id => 1
+        response.should redirect_to(signin_path)
+      end
+    end
+
+    describe "when signed in" do
+      before(:each) do
+        @user = test_sign_in(Factory(:user))
+        @other_user = Factory(:user)
+        @mp1 = @other_user.microposts.create!(:content => "@#{@user.login_name} foo bar")
+        @mp2 = @other_user.microposts.create!(:content => "bar baz")
+      end
+
+      it "should show replied microposts" do
+        get :replies, :id => @user
+        response.should have_selector(".micropost .content", :content => @mp1.content)
+      end
+      
+      it "should not contain other microposts" do
+        get :replies, :id => @user
+        response.should_not have_selector(".micropost .content", :content => @mp2.content)
       end
     end
   end

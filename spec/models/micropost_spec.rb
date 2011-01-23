@@ -67,4 +67,23 @@ describe Micropost do
       Micropost.from_users_followed_by(@user).should_not include(@third_post)
     end
   end
+  
+  describe "including_replies" do
+    before(:each) do
+      @other_user = Factory(:user)
+      @third_user = Factory(:user)
+      
+      @user_post = @user.microposts.create!(:content => "foo")
+      @other_post = @other_user.microposts.create!(:content => "@#{@user.login_name} bar")
+      @third_post = @third_user.microposts.create!(:content => "baz")
+    end
+    
+    it "should include the replied micropost" do
+      Micropost.including_replies(@user).should include(@other_post)
+    end
+    
+    it "should not include the other microposts" do
+      Micropost.including_replies(@user).should_not include(@third_post)
+    end
+  end
 end

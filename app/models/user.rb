@@ -1,20 +1,24 @@
 # == Schema Information
-# Schema version: 20110116062418
+# Schema version: 20110123171340
 #
 # Table name: users
 #
-#  id         :integer         not null, primary key
-#  name       :string(255)
-#  email      :string(255)
-#  created_at :datetime
-#  updated_at :datetime
+#  id                 :integer         not null, primary key
+#  name               :string(255)
+#  email              :string(255)
+#  created_at         :datetime
+#  updated_at         :datetime
+#  encrypted_password :string(255)
+#  salt               :string(255)
+#  admin              :boolean
+#  login_name         :string(255)
 #
 
 require 'digest'
 
 class User < ActiveRecord::Base
   attr_accessor :password
-  attr_accessible :name, :email, :password, :password_confirmation
+  attr_accessible :name, :email, :password, :password_confirmation, :login_name
 
   has_many :microposts, :dependent => :destroy
   has_many :relationships, :foreign_key => "follower_id",
@@ -25,16 +29,27 @@ class User < ActiveRecord::Base
                                    :dependent => :destroy
   has_many :followers, :through => :reverse_relationships, 
                                    :source => :follower
+  has_many :replies, :class_name => "Micropost",
+                     :foreign_key => "in_reply_to",
+                     :source => :reply_to
   
-  
+  login_name_regex = /\A[a-z0-9_\-.]+\z/i
   email_regex = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
 
-  validates :name, :presence => true,
+  validates :name,
+            :presence => true,
             :length => {:maximum => 50}
-  validates :email, :presence => true,
+  validates :login_name,
+            :presence => true,          
+            :length => {:maximum => 30},
+            :format => {:with => login_name_regex},
+            :uniqueness => {:case_sensitive => false}
+  validates :email,
+            :presence => true,
             :format => {:with => email_regex},
             :uniqueness => {:case_sensitive => false}
-  validates :password, :presence => true,
+  validates :password,
+            :presence => true,
             :confirmation => true,
             :length => {:within => 6..40}
 
@@ -90,5 +105,4 @@ class User < ActiveRecord::Base
   def secure_hash(string)
     Digest::SHA2.hexdigest(string)
   end
-#  has_many :microposts
 end
