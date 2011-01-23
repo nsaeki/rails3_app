@@ -41,7 +41,7 @@ describe "Microposts" do
       @mp = Factory(:micropost, :user => another_user)
     end
     
-    it "should not appear created by another user" do
+    it "should not appear created by others" do
       visit root_path
       response.should_not have_selector("a", :href => micropost_path(@mp),
                                              :content => "delete")

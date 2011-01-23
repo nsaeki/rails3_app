@@ -107,6 +107,28 @@ describe UsersController do
                                            :content => "Next")
       end
     end
+    
+    describe "relationships" do
+      before(:each) do
+        @another = Factory(:user, :email => Factory.next(:email))
+      end
+
+      it "should show the right followings count" do
+        @user.follow!(@another)
+        get :show, :id => @user
+        response.should have_selector("span#following", :content => "1 following")
+      end
+
+      it "should show the right followers count" do
+        @another.follow!(@user)
+        get :show, :id => @user
+        response.should have_selector("span#followers", :content => "1 follower")
+
+        Factory(:user, :email => Factory.next(:email)).follow!(@user)
+        get :show, :id => @user
+        response.should have_selector("span#followers", :content => "2 followers")
+      end
+    end
   end
 
   describe "GET 'new'" do

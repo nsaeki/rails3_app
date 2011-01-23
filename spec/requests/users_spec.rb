@@ -34,7 +34,7 @@ describe "Users" do
     end
   end
     
-  describe "signed in" do
+  describe "when signed in" do
     describe "as a normal user" do
       before(:each) do
         @user = Factory(:user)
