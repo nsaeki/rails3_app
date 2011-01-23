@@ -42,8 +42,7 @@ describe "Users" do
       end
 
       it "should not have a delete link"  do
-#        visit user_path
-        visit 'users'
+        visit users_path
         response.should_not have_selector("a", :href => user_path(@user),
                                                :content => "delete")
       end
@@ -58,11 +57,10 @@ describe "Users" do
       end
 
       it "should have a delete link"  do
-#        visit user_path
-        visit 'users'
+        visit users_path
         response.should have_selector("a", :href => user_path(@user),
                                            :content => "delete")
       end
     end
-  end  
+  end
 end

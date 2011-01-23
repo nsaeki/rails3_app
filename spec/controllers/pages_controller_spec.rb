@@ -19,26 +19,37 @@ describe PagesController do
         :content => @base_title + " | Home")
     end
 
-    describe "as a signed-in user" do
+    describe "when signed in" do
       before(:each) do
-        @user = Factory(:user)
-        test_sign_in(@user)
+        @user = test_sign_in(Factory(:user))
+        other_user = Factory(:user, :email => Factory.next(:email))
+        other_user.follow!(@user)
       end
 
-      it "should have the collect micropost counts" do
-        get 'home'
+      it "should have the right micropost counts" do
+        get :home
         response.should have_selector("span.microposts",
-          :content => @user.microposts.count.to_s + " micropost")
-          
-        get 'home'
-        @user.microposts.create
-        response.should have_selector("span.microposts",
-          :content => @user.microposts.count.to_s + " micropost")
+          :content => "0 micropost")
 
-        get 'home'
-        @user.microposts.create
+        @user.microposts.create(:content => "foobar")
+        get :home
         response.should have_selector("span.microposts",
-          :content => @user.microposts.count.to_s + " microposts")
+          :content => "1 micropost")
+
+        @user.microposts.create(:content => "foobar")
+        get :home
+        response.should have_selector("span.microposts",
+          :content => "2 microposts")
+      end
+
+      it "should have the right follower/following counts" do
+        get :home
+        response.should have_selector("a",
+          :href => following_user_path(@user),
+          :content => "0 following")
+        response.should have_selector("a",
+          :href => followers_user_path(@user),
+          :content => "1 follower")
       end
     end
   end
